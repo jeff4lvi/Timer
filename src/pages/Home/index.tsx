@@ -37,6 +37,7 @@ interface Cycle {
   minuteAmount: number
   startDate: Date
   interruptedDate?: Date
+  finishedDate?: Date
 }
 
 export function Home() {
@@ -53,20 +54,39 @@ export function Home() {
   })
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
+  const totalSeconds = activeCycle ? activeCycle.minuteAmount * 60 : 0
+
   useEffect(() => {
-    let interval: number
+    // eslint-disable-next-line no-undef
+    let interval: NodeJS.Timer
 
     if (activeCycle) {
       interval = setInterval(() => {
-        setAmountSecondsPassed(
-          differenceInSeconds(new Date(), activeCycle.startDate),
+        const secondsDifferense = differenceInSeconds(
+          new Date(),
+          activeCycle.startDate,
         )
+        if (secondsDifferense >= totalSeconds) {
+          setCycles(
+            cycles.map((cycle) => {
+              if (cycle.id === activeCycleId) {
+                return { ...cycle, finishedDate: new Date() }
+              } else {
+                return cycle
+              }
+            }),
+          )
+        } else {
+          setAmountSecondsPassed(secondsDifferense)
+        }
+
+        setAmountSecondsPassed(secondsDifferense)
       }, 1000)
     }
     return () => {
       clearInterval(interval)
     }
-  }, [activeCycle])
+  }, [activeCycle, totalSeconds])
 
   function handleCreateNewCycle(data: NewCycleFormData) {
     const id = String(new Date().getTime())
@@ -98,7 +118,6 @@ export function Home() {
     setActiveCycleId(null)
   }
 
-  const totalSeconds = activeCycle ? activeCycle.minuteAmount * 60 : 0
   const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
 
   const minutesAmount = Math.floor(currentSeconds / 60)
