@@ -14,7 +14,7 @@ export function Countdown() {
     setSecondsPassed,
   } = useContext(CyclesContext)
 
-  const totalSeconds = activeCycle ? activeCycle.minuteAmount * 60 : 0
+  const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
 
   useEffect(() => {
     // eslint-disable-next-line no-undef
@@ -24,7 +24,7 @@ export function Countdown() {
       interval = setInterval(() => {
         const secondsDifference = differenceInSeconds(
           new Date(),
-          activeCycle.startDate,
+          new Date(activeCycle.startDate),
         )
         if (secondsDifference >= totalSeconds) {
           markCurrentCycleAsFinished()
